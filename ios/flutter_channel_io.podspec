@@ -15,7 +15,9 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'ChannelIO', '~> 7.2'
+
+  s.dependency 'ChannelIOSDK'
+
   s.ios.deployment_target = '10.0'
   s.platform = :ios, '10.0'
 
@@ -23,3 +25,9 @@ A new flutter plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
   s.swift_version = '5.0'
 end
+
+
+#  s.dependency 'ChannelIOSDK', :podspec => 'https://mobile-static.channel.io/ios/latest/xcframework.podspec'
+#  s.dependency 'ChannelIO', '~> 7.2'
+#  s.dependency 'ChannelIOSDK', :podspec => 'https://mobile-static.channel.io/ios/latest/xcframework.podspec'
+#  s.dependency 'ChannelIOSDK', :podspec => 'https://mobile-static.channel.io/ios/8.0.0/framework.podspec'

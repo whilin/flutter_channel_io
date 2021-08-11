@@ -6,18 +6,21 @@ import 'package:flutter/services.dart';
 class ChannelIO {
   factory ChannelIO() => _instance;
 
-  ChannelIO.private(MethodChannel channel) : _channel = channel;
+  ChannelIO.private(MethodChannel channel, EventChannel eventChannel) : _channel = channel, _eventChannel=eventChannel;
 
   static final ChannelIO _instance =
-      ChannelIO.private(MethodChannel('GwonHyeok/flutter_channel_io'));
+      ChannelIO.private(MethodChannel('GwonHyeok/flutter_channel_io'),
+      EventChannel('GwonHyeok/flutter_channel_io_event')
+      );
 
   final MethodChannel _channel;
+  final EventChannel _eventChannel;
 
-  Future<bool> boot({
-    @required String pluginKey,
-    String memberId,
-    String memberHash,
-    Profile profile,
+  Future<bool?> boot({
+    required String pluginKey,
+    String? memberId,
+    String? memberHash,
+    Profile? profile,
   }) async {
     return await _channel.invokeMethod('boot', {
       'pluginKey': pluginKey,
@@ -27,54 +30,58 @@ class ChannelIO {
     });
   }
 
-  Future<bool> show() async {
+  Future<bool?> show() async {
     return await _channel.invokeMethod('show');
   }
 
-  Future<bool> hide() async {
+  Future<bool?> hide() async {
     return await _channel.invokeMethod('hide');
   }
 
-  Future<bool> open() async {
+  Future<bool?> open() async {
     return await _channel.invokeMethod('open');
   }
 
-  Future<bool> handlePushNotification() async {
+  Future<bool?> handlePushNotification() async {
     return await _channel.invokeMethod('handlePushNotification');
   }
 
-  Future<bool> isChannelPushNotification(
-      {@required Map<String, String> message}) async {
+  Future<bool?> isChannelPushNotification(
+      {required Map<String, String> message}) async {
     return await _channel.invokeMethod(
       'isChannelPushNotification',
       {'message': message},
     );
   }
 
-  Future<bool> showPushNotification(
-      {@required Map<String, String> message}) async {
+  Future<bool?> showPushNotification(
+      {required Map<String, String> message}) async {
     return await _channel.invokeMethod(
       'showPushNotification',
       {'message': message},
     );
   }
 
-  Future<bool> initPushToken({
-    @required String token,
+  Future<bool?> initPushToken({
+    required String token,
   }) async {
     return await _channel.invokeMethod('initPushToken', {
       'token': token,
     });
   }
+
+  Stream<int> onBadgeChanged() {
+    return _eventChannel.receiveBroadcastStream().map<int>( (data) => data as int );
+  }
 }
 
 class Profile {
-  final String name;
-  final String email;
-  final String avatarUrl;
-  final String mobileNumber;
+  final String? name;
+  final String? email;
+  final String? avatarUrl;
+  final String? mobileNumber;
 
-  final Map<String, String> properties;
+  final Map<String, String>? properties;
 
   Profile({
     this.name,
@@ -91,7 +98,7 @@ class Profile {
     if (avatarUrl != null) _map['avatarUrl'] = avatarUrl;
     if (mobileNumber != null) _map['mobileNumber'] = mobileNumber;
     if (properties != null) {
-      properties.forEach((key, value) {
+      properties!.forEach((key, value) {
         _map[key] = value;
       });
     }

@@ -2,17 +2,29 @@ import Flutter
 import UIKit
 import ChannelIO
 
-public class SwiftFlutterChannelIoPlugin: NSObject, FlutterPlugin {
+public class SwiftFlutterChannelIoPlugin: NSObject, FlutterPlugin , ChannelPluginDelegate{
+    
+    public static var eventChannel: FlutterEventChannel?
+    public static var bagdeEvents: FlutterEventSink?
+    public static var badgeCount : Int = 0;
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "GwonHyeok/flutter_channel_io", binaryMessenger: registrar.messenger())
         
         let instance = SwiftFlutterChannelIoPlugin()
+        
+        let channel = FlutterMethodChannel(name: "GwonHyeok/flutter_channel_io", binaryMessenger: registrar.messenger())
+        
+        SwiftFlutterChannelIoPlugin.eventChannel = FlutterEventChannel(name: "GwonHyeok/flutter_channel_io_event", binaryMessenger: registrar.messenger())
+        SwiftFlutterChannelIoPlugin.eventChannel!.setStreamHandler(StreamHandler())
+        
+        
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
     
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
         ChannelIO.initialize(application)
+        ChannelIO.delegate = self
         
         return true
     }
@@ -27,6 +39,14 @@ public class SwiftFlutterChannelIoPlugin: NSObject, FlutterPlugin {
         let userInfo = response.notification.request.content.userInfo
         if ChannelIO.isChannelPushNotification(userInfo) == true {
             ChannelIO.handlePushNotification(userInfo, completion: completionHandler)
+        }
+    }
+    
+    public func onBadgeChanged(count: Int) {
+        if let _bageEvents = SwiftFlutterChannelIoPlugin.bagdeEvents {
+           // let eventData = ["name": "onBadgeChanged", "count": count] as [String: Any?]
+           SwiftFlutterChannelIoPlugin.badgeCount = count
+            _bageEvents(count);
         }
     }
     
@@ -130,4 +150,23 @@ public class SwiftFlutterChannelIoPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         }
     }
+    
+    
+    class StreamHandler: NSObject, FlutterStreamHandler {
+        
+       // public var _events: FlutterEventSink?
+        
+        public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+            SwiftFlutterChannelIoPlugin.bagdeEvents = events;
+            SwiftFlutterChannelIoPlugin.bagdeEvents!(SwiftFlutterChannelIoPlugin.badgeCount);
+            return nil
+        }
+
+        public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+            SwiftFlutterChannelIoPlugin.bagdeEvents = nil;
+            return nil
+        }
+    }
+   
 }
+

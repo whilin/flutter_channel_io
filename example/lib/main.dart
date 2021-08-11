@@ -16,6 +16,7 @@ class _MyAppState extends State<MyApp> {
   final _channelIO = ChannelIO();
 
   bool _isBooted = false;
+  int badge = 0;
 
   @override
   void initState() {
@@ -30,6 +31,12 @@ class _MyAppState extends State<MyApp> {
       profile: Profile(name: "GwonHyeok", email: "me@ghyeok.io"),
     );
 
+    _channelIO.onBadgeChanged().listen((badge) {
+        setState(() {
+          this.badge = badge;
+        });
+    });
+
     setState(() {
       _isBooted = true;
     });
@@ -40,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('ChannelIO example app'),
+          title:  Text('ChannelIO example app ${badge}'),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,

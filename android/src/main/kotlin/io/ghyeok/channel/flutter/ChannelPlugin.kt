@@ -10,18 +10,24 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import io.flutter.plugin.common.EventChannel
 
 /** FlutterChannelIoPlugin */
 public class ChannelPlugin : FlutterPlugin, ActivityAware {
 
   private lateinit var channel: MethodChannel
+  private lateinit var eventChannel: EventChannel
 
   private lateinit var handler: MethodCallHandlerImpl
 
   companion object {
 
     const val CHANNEL_NAME = "GwonHyeok/flutter_channel_io"
-
+    const val EVENT_NAME = "GwonHyeok/flutter_channel_io_event"
+    
+    var event : EventChannel.EventSink? = null;
+    var count :  Int = 0;
+    
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       val channelPlugin = ChannelPlugin()
@@ -42,9 +48,14 @@ public class ChannelPlugin : FlutterPlugin, ActivityAware {
     handler = MethodCallHandlerImpl(context)
     channel.setMethodCallHandler(handler)
 
+    val eventHandler = EventHandler(context);
+    eventChannel = EventChannel(messenger, EVENT_NAME);
+    eventChannel.setStreamHandler(eventHandler);
+
     // Initialize ChannelIO
     val application = context.applicationContext as Application
     ChannelIO.initialize(application)
+    ChannelIO.setChannelPluginListener(eventHandler)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
